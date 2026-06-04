@@ -12,7 +12,9 @@ public class Entrega {
         return distancia;
     }
 
-    public void setDistancia(double distancia) {
+    public void setDistancia(
+            double distancia
+    ) {
         this.distancia = distancia;
     }
 
@@ -20,27 +22,17 @@ public class Entrega {
         return peso;
     }
 
-    public void setPeso(double peso) {
+    public void setPeso(
+            double peso
+    ) {
         this.peso = peso;
     }
 
     public double calcularFrete() {
 
-        String expressao =
-                Transportadora.getFormulaFrete();
-
-        expressao = expressao.replace(
-                "distancia",
-                Double.toString(distancia)
+        return Transportadora.calcularFrete(
+                distancia,
+                peso
         );
-
-        expressao = expressao.replace(
-                "peso",
-                Double.toString(peso)
-        );
-
-        return new interpreter.InterpretadorExpressoesFrete(
-                expressao
-        ).calcular();
     }
 }

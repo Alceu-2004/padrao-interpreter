@@ -1,20 +1,37 @@
 package service;
 
+import interpreter.InterpretadorExpressao;
+import interpreter.InterpretadorExpressoesFrete;
+
 public class Transportadora {
 
-    private static String formulaFrete =
+    public static String formulaFrete =
             "distancia * 2 + peso";
 
-    public static String getFormulaFrete() {
-
-        return formulaFrete;
-    }
-
-    public static void setFormulaFrete(
-            String formulaFrete
+    public static double calcularFrete(
+            double distancia,
+            double peso
     ) {
 
-        Transportadora.formulaFrete =
-                formulaFrete;
+        String expressao;
+
+        expressao =
+                formulaFrete.replace(
+                        "distancia",
+                        Double.toString(distancia)
+                );
+
+        expressao =
+                expressao.replace(
+                        "peso",
+                        Double.toString(peso)
+                );
+
+        InterpretadorExpressao interpretador =
+                new InterpretadorExpressoesFrete(
+                        expressao
+                );
+
+        return interpretador.interpretar();
     }
 }

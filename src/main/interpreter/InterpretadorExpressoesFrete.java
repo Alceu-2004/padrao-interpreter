@@ -1,81 +1,180 @@
 package interpreter;
 
-public class InterpretadorExpressoesFrete {
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
 
-    private String expressao;
+public class InterpretadorExpressoesFrete
+        implements InterpretadorExpressao {
+
+    private InterpretadorExpressao interpretadorInicial;
 
     public InterpretadorExpressoesFrete(
-            String expressao
+            String contexto
     ) {
 
-        this.expressao = expressao;
-    }
+        Stack<InterpretadorExpressao> pilhaInterpretadores =
+                new Stack<>();
 
-    public double calcular() {
+        List<String> elementos =
+                Arrays.asList(
+                        contexto.split(" ")
+                );
 
-        String[] tokens =
-                expressao.split(" ");
+        Iterator<String> iterator =
+                elementos.iterator();
 
-        InterpretadorExpressao resultado =
-                new Numero(
-                        Double.parseDouble(
-                                tokens[0]
+        while (iterator.hasNext()) {
+
+            String elemento =
+                    iterator.next();
+
+            if (elemento.matches("\\d+(\\.\\d*)?")) {
+
+                pilhaInterpretadores.push(
+                        new Numero(
+                                Double.parseDouble(
+                                        elemento
+                                )
                         )
                 );
 
-        for (int i = 1; i < tokens.length; i += 2) {
+            } else if (elemento.equals("+")) {
 
-            String operador =
-                    tokens[i];
-
-            InterpretadorExpressao numero =
-                    new Numero(
-                            Double.parseDouble(
-                                    tokens[i + 1]
-                            )
-                    );
-
-            switch (operador) {
-
-                case "+":
-                    resultado =
-                            new Adicao(
-                                    resultado,
-                                    numero
-                            );
-                    break;
-
-                case "-":
-                    resultado =
-                            new Subtracao(
-                                    resultado,
-                                    numero
-                            );
-                    break;
-
-                case "*":
-                    resultado =
-                            new Multiplicacao(
-                                    resultado,
-                                    numero
-                            );
-                    break;
-
-                case "/":
-                    resultado =
-                            new Divisao(
-                                    resultado,
-                                    numero
-                            );
-                    break;
-
-                default:
+                if (!iterator.hasNext()) {
                     throw new IllegalArgumentException(
-                            "Operador inválido"
+                            "Expressão inválida"
                     );
+                }
+
+                Numero esquerda =
+                        (Numero) pilhaInterpretadores.pop();
+
+                Numero direita =
+                        new Numero(
+                                Double.parseDouble(
+                                        iterator.next()
+                                )
+                        );
+
+                Adicao interpretador =
+                        new Adicao(
+                                esquerda,
+                                direita
+                        );
+
+                pilhaInterpretadores.push(
+                        new Numero(
+                                interpretador.interpretar()
+                        )
+                );
+
+            } else if (elemento.equals("-")) {
+
+                if (!iterator.hasNext()) {
+                    throw new IllegalArgumentException(
+                            "Expressão inválida"
+                    );
+                }
+
+                Numero esquerda =
+                        (Numero) pilhaInterpretadores.pop();
+
+                Numero direita =
+                        new Numero(
+                                Double.parseDouble(
+                                        iterator.next()
+                                )
+                        );
+
+                Subtracao interpretador =
+                        new Subtracao(
+                                esquerda,
+                                direita
+                        );
+
+                pilhaInterpretadores.push(
+                        new Numero(
+                                interpretador.interpretar()
+                        )
+                );
+
+            } else if (elemento.equals("*")) {
+
+                if (!iterator.hasNext()) {
+                    throw new IllegalArgumentException(
+                            "Expressão inválida"
+                    );
+                }
+
+                Numero esquerda =
+                        (Numero) pilhaInterpretadores.pop();
+
+                Numero direita =
+                        new Numero(
+                                Double.parseDouble(
+                                        iterator.next()
+                                )
+                        );
+
+                Multiplicacao interpretador =
+                        new Multiplicacao(
+                                esquerda,
+                                direita
+                        );
+
+                pilhaInterpretadores.push(
+                        new Numero(
+                                interpretador.interpretar()
+                        )
+                );
+
+            } else if (elemento.equals("/")) {
+
+                if (!iterator.hasNext()) {
+                    throw new IllegalArgumentException(
+                            "Expressão inválida"
+                    );
+                }
+
+                Numero esquerda =
+                        (Numero) pilhaInterpretadores.pop();
+
+                Numero direita =
+                        new Numero(
+                                Double.parseDouble(
+                                        iterator.next()
+                                )
+                        );
+
+                Divisao interpretador =
+                        new Divisao(
+                                esquerda,
+                                direita
+                        );
+
+                pilhaInterpretadores.push(
+                        new Numero(
+                                interpretador.interpretar()
+                        )
+                );
+
+            } else {
+
+                throw new IllegalArgumentException(
+                        "Expressão com elemento inválido"
+                );
             }
         }
 
-        return resultado.interpretar();
+        interpretadorInicial =
+                pilhaInterpretadores.pop();
+    }
+
+    @Override
+    public double interpretar() {
+
+        return interpretadorInicial.interpretar();
     }
 }
